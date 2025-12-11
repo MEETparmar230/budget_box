@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BudgetBox — Local-first Offline Personal Budgeting App (Starter)
 
-## Getting Started
 
-First, run the development server:
+This repo is a starter scaffold for the BudgetBox assignment: a local-first budgeting app that works offline, auto-saves every keystroke, and syncs when online.
+
+
+## Features included in this starter
+- Next.js 15 App Router (frontend + API in one app)
+- TypeScript, React 18
+- Zustand for state management
+- localForage (IndexedDB) persistence via Zustand persist
+- Tailwind CSS
+- shadcn/ui ready (basic setup placeholder — see instructions)
+- Simple REST endpoints (`/api/auth/login`, `/api/budget/sync`, `/api/budget/latest`)
+- Demo login seed required: `hire-me@anshumat.org` / `HireMe@2025!`
+
+
+## Quick start (local)
+1. Clone and install:
+
+
+```bash
+git clone <repo>
+cd budgetbox
+npm install
+```
+
+2. Create .env.local and set your Postgres URL:
+
+
+```bash
+DATABASE_URL=postgres://user:pass@host:5432/dbname
+```
+
+3. Run DB migrations / schema (run the SQL below in psql):
+
+
+```bash
+CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, created_at TIMESTAMP DEFAULT now());
+CREATE TABLE IF NOT EXISTS budgets (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, month_year TEXT NOT NULL, data JSONB NOT NULL, updated_at TIMESTAMP DEFAULT now());
+ALTER TABLE budgets ADD CONSTRAINT IF NOT EXISTS uniq_user_month UNIQUE (user_id, month_year);
+```
+
+
+4. Seed demo user (generate bcrypt hash for HireMe@2025!):
+
+
+```bash
+import bcrypt from 'bcrypt';
+const h = await bcrypt.hash('HireMe@2025!', 10); console.log(h);
+```
+
+
+5. Run the app:
+
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## How to test offline behavior
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Open the app and sign in with demo credentials.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Open DevTools → Application → IndexedDB to view budgetbox-storage (LocalForage).
 
-## Deploy on Vercel
+3. Fill the budget form — every keystroke is persisted locally.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Turn off network (DevTools → Network → Offline) and continue editing — data persists.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+5. Reconnect and click Sync to push local data to the server.
+
+
+---
+
+
+## How the sync works
+
+- Local budget objects include an updatedAt ISO timestamp.
+
+- When syncing we POST /api/budget/sync which upserts into Postgres per (user_id, month_year).
+
+- GET /api/budget/latest fetches the latest saved server version.
+
+- Conflict resolution: Last-Write-Wins based on updatedAt.
+
+
+---
+
+
