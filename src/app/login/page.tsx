@@ -18,9 +18,9 @@ export default function page() {
     <div className="flex items-center justify-center">
       <form
         onSubmit={handleSubmit}
-        className="bg-card text-card-foreground p-6 rounded-xl w-80 shadow border border-border mt-20"
+        className="bg-card text-card-foreground p-6 rounded-xl w-100 shadow border border-border mt-20"
       >
-        <h2 className="text-xl font-bold mb-4">Login</h2>
+        <h2 className="text-2xl font-bold mb-6">Login</h2>
 
         <input
           type="email"
@@ -31,7 +31,7 @@ export default function page() {
 
         <input
           type="password"
-          className="w-full p-2 border rounded mb-3"
+          className="w-full p-2 border rounded mb-5"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />

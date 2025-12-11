@@ -9,7 +9,7 @@ export default function Dashboard() {
     const a = getAnalytics(budget);
     return (
         <div className="card space-y-3">
-            <h3 className="text-lg">Summary</h3>
+            <h3 className="text-2xl font-semibold">Summary</h3>
             <div>Burn Rate: {(a.burnRate * 100).toFixed(1)}%</div>
             <div>Savings: ₹{a.savings}</div>
             <div>Total Spend: ₹{a.totalSpend}</div>

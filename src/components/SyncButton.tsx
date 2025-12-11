@@ -1,6 +1,8 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { useBudgetStore } from '../../stores/useBudgetStore';
+import OfflineIndicator from './OfflineIndicator';
+import { Button } from './ui/button';
 
 
 export default function SyncButton() {
@@ -28,8 +30,9 @@ export default function SyncButton() {
         }, [])
 
     return (
-        <div className="flex items-center gap-3">
-            <button onClick={doSync} className={`px-3 py-1 rounded ${online? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>Sync</button>
+        <div className="flex items-center gap-3 flex flex-col">
+            
+            <Button disabled={!online} onClick={doSync} className={`px-3 py-1 rounded ${online? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>Sync</Button>
             <span className="text-sm">{status === 'local' ? 'Local Only' : status === 'pending' ? 'Sync Pending' : 'Synced'}</span>
         </div>
     )
