@@ -4,6 +4,9 @@ import { useBudgetStore } from '../../stores/useBudgetStore';
 
 
 export default function Dashboard() {
+
+
+
     const budget = useBudgetStore(s => s.budget);
     if (!budget) return <div className="card">No budget saved yet.</div>
     const a = getAnalytics(budget);

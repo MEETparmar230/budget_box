@@ -3,6 +3,16 @@
 import { useBudgetStore } from "../../stores/useBudgetStore";
 import { Input } from "./ui/input";
 
+type Budget = {
+  income: number;
+  bills: number;
+  food: number;
+  transport: number;
+  subscriptions: number;
+  miscellaneous: number;
+  updatedAt: string;
+  monthYear: string;
+};
 
 export default function BudgetForm() {
     const budget = useBudgetStore(s => s.budget);
@@ -11,7 +21,7 @@ export default function BudgetForm() {
 
     const onChange = (field: keyof NonNullable<typeof budget>, value: string) => {
         const num = Number(value || 0);
-        setBudget({ [field]: num } as any);
+        setBudget({ [field]: num } as Partial<Budget>);
     }
 
 
@@ -35,7 +45,7 @@ export default function BudgetForm() {
                     <Input className="w-full p-2 rounded mt-1" type="number" value={budget?.subscriptions ?? ''} onChange={(e) => onChange('subscriptions', e.target.value)} />
                 </label>
                 <label>Misc
-                    <Input className="w-full p-2 rounded mt-1" type="number" value={budget?.misc ?? ''} onChange={(e) => onChange('misc', e.target.value)} />
+                    <Input className="w-full p-2 rounded mt-1" type="number" value={budget?.miscellaneous ?? ''} onChange={(e) => onChange('miscellaneous', e.target.value)} />
                 </label>
             </div>
             <p className="text-sm text-muted-foreground mt-3">Auto-saved locally.</p>

@@ -121,3 +121,4 @@
   }
 }
 
+.card { background: var(--card); color: var(--card-foreground); border-radius: var(--radius); padding: 1rem; }

@@ -1,24 +1,51 @@
-// app/api/auth/login/route.ts
-import { NextResponse } from 'next/server'
-import pool from '@/lib/db'
+import { db } from "@/db";
+import { NextRequest, NextResponse } from "next/server";
+import {users} from '@/db/schema'
+import { eq } from "drizzle-orm";
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 
-export async function POST(req: Request) {
-    try {
-        const { email, password } = await req.json();
-        const client = await pool.connect();
-        try {
-            const q = 'SELECT id, email, password_hash FROM users WHERE email=$1 LIMIT 1';
-            const res = await client.query(q, [email]);
-            if (res.rowCount === 0) return NextResponse.json({ ok: false, error: 'Invalid credentials' }, { status: 401 });
-            const user = res.rows[0];
-            const valid = await bcrypt.compare(password, user.password_hash);
-            if (!valid) return NextResponse.json({ ok: false, error: 'Invalid credentials' }, { status: 401 });
-            // NOTE: For demo purposes we return a simple token-like object. In prod, set secure httpOnly cookie/session.
-            return NextResponse.json({ ok: true, user: { id: user.id, email: user.email } });
-        } finally { client.release() }
-    } catch (e) {
-        return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
+export async function POST(req: NextRequest){
+
+    const body = await req.json()
+    const { email, password } = body;
+
+    if (!email || !password) {
+        return NextResponse.json({message:"Email and password are required"}, { status: 400 });
     }
+
+    const user = await db.query.users.findFirst({
+        where:eq(users.email, email)
+    })
+
+    if (!user) {
+        return NextResponse.json({message:"Invalid credentials"}, { status: 404 });
+    }
+
+console.log(await bcrypt.hash(password,10));
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid) {
+        return NextResponse.json({message:"Invalid credentials"}, { status: 401 });
+    }
+
+    const token = await jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET!,{expiresIn:'7d'});
+
+    
+
+    const res = NextResponse.json({message:"Login successful"}, { status: 200 })
+
+    res.cookies.set("token", token,{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+    })
+
+    return res;
+
+
 }

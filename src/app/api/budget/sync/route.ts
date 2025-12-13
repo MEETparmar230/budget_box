@@ -1,22 +1,56 @@
-import { NextResponse } from 'next/server'
-import pool from '@/lib/db'
-
+import { NextResponse } from "next/server";
+import { db } from "@/db";
+import { budgets } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const userId = 1; // demo
-        const { monthYear, data } = body;
-        const now = new Date().toISOString();
-        const client = await pool.connect();
-        try {
-            const q = `INSERT INTO budgets (user_id, month_year, data, updated_at)
-VALUES ($1,$2,$3::jsonb,$4)
-ON CONFLICT (user_id, month_year) DO UPDATE SET data=EXCLUDED.data, updated_at=EXCLUDED.updated_at RETURNING updated_at`;
-            const res = await client.query(q, [userId, monthYear, JSON.stringify(data), now]);
-            return NextResponse.json({ success: true, timestamp: res.rows[0].updated_at });
-        } finally { client.release() }
-    } catch (e) {
-        return NextResponse.json({ success: false, error: String(e) }, { status: 500 })
+  try {
+    const { monthYear, data, clientUpdatedAt } = await req.json();
+
+    const userId = 1;
+    const now = new Date();
+
+    const existing = await db
+      .select()
+      .from(budgets)
+      .where(and(eq(budgets.userId, userId), eq(budgets.month, monthYear)));
+
+    if (existing.length === 0) {
+      await db.insert(budgets).values({
+        userId,
+        month: monthYear,
+        ...data,
+        rawJson: data,
+        updatedAt: now,
+      });
+    } else {
+      const serverTime = new Date(existing[0].updatedAt).getTime();
+      const clientTime = clientUpdatedAt
+        ? new Date(clientUpdatedAt).getTime()
+        : 0;
+
+      if (clientTime >= serverTime) {
+        await db
+          .update(budgets)
+          .set({
+            ...data,
+            rawJson: data,
+            updatedAt: now,
+          })
+          .where(eq(budgets.id, existing[0].id));
+      }
     }
+
+    return NextResponse.json({
+      success: true,
+      syncedAt: now.toISOString(),
+    });
+
+  } catch (err) {
+    console.error("Budget sync error", err);
+    return NextResponse.json(
+      { success: false, error: "Failed to sync budget" },
+      { status: 500 }
+    );
+  }
 }

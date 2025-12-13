@@ -1,50 +1,57 @@
-'use client'
+"use client";
 
-import { FormEvent, useState } from 'react'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-export default function page() {
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("hire-me@anshumat.org");
+  const [password, setPassword] = useState("HireMe@2025!");
+  const [error, setError] = useState("");
 
-    const [email, setEmail] = useState<string>("hire-me@anshumat.org");
-    const [password, setPassword] = useState<string>("HireMe@2025!");
-    const [error, setError] = useState<string>("");
+  const submit = async () => {
+    setError("");
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    const handleSubmit = (e:FormEvent) =>{
-        e.preventDefault()
-        setError("")
-
+    if (!res.ok) {
+      setError("Invalid email or password");
+      return;
     }
 
+    router.push("/");
+  };
+
   return (
-    <div className="flex items-center justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-card text-card-foreground p-6 rounded-xl w-100 shadow border border-border mt-20"
-      >
-        <h2 className="text-2xl font-bold mb-6">Login</h2>
-
-        <input
-          type="email"
-          className="w-full p-2 border rounded mb-3"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          className="w-full p-2 border rounded mb-5"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded"
-        >
+    <div className="mt-50 flex items-center justify-center">
+      <Card className="w-[380px]">
+        <CardHeader className="text-xl font-semibold">
           Login
-        </button>
-
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-      </form>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Input
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <Button className="w-full mt-3" onClick={submit}>
+            Login
+          </Button>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
