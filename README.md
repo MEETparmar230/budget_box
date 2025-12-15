@@ -3,6 +3,7 @@
 
 This repo is a starter scaffold for the BudgetBox assignment: a local-first budgeting app that works offline, auto-saves every keystroke, and syncs when online.
 
+# Live (Link)[https://budget-box-two.vercel.app/]
 
 ## Features included in this starter
 - Next.js 15 App Router (frontend + API in one app)
