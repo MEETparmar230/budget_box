@@ -28,7 +28,7 @@ export default function Page() {
         <Dashboard />
 
       </div>
-      <div className="bg-card text-card-foreground border border-border px-5 py-10 max-w-5xl mx-auto rounded-xl md:min-w-5xl mt-10">
+      <div className="bg-card text-card-foreground border border-border px-5 py-10 max-w-5xl mx-auto rounded-xl md:min-w-5xl my-10">
         <CategoryPie />
       </div>
     </>

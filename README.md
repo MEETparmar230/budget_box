@@ -21,8 +21,8 @@ This repo is a starter scaffold for the BudgetBox assignment: a local-first budg
 
 ```bash
 git clone <repo>
-cd budgetbox
-npm install
+cd budget_box
+pnpm install
 ```
 
 2. Create .env.local and set your Postgres URL:
@@ -55,7 +55,7 @@ const h = await bcrypt.hash('HireMe@2025!', 10); console.log(h);
 
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Open http://localhost:3000
