@@ -1,5 +1,5 @@
 'use client'
-import { getAnalytics } from '@/lib/rules';
+import { getAnalytics, monthEndPrediction } from '@/lib/rules';
 import { useBudgetStore } from '../../stores/useBudgetStore';
 
 
@@ -24,6 +24,7 @@ export default function Dashboard() {
                     </ul>
                 </div>
             )}
+            {budget && <div className='font-bold'>Projected Month Spend: ₹{monthEndPrediction(budget)}</div>}
         </div>
     )
 }

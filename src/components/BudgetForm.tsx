@@ -44,7 +44,7 @@ export default function BudgetForm() {
                 <label>Subscriptions
                     <Input className="w-full p-2 rounded mt-1" type="number" value={budget?.subscriptions ?? ''} onChange={(e) => onChange('subscriptions', e.target.value)} />
                 </label>
-                <label>Misc
+                <label>Miscellaneous
                     <Input className="w-full p-2 rounded mt-1" type="number" value={budget?.miscellaneous ?? ''} onChange={(e) => onChange('miscellaneous', e.target.value)} />
                 </label>
             </div>
