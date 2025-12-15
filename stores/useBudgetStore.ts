@@ -50,7 +50,7 @@ export const useBudgetStore = create<State>()(
           const res = await fetch('/api/budget/sync', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ monthYear: b.monthYear, data: b }),
+            body: JSON.stringify({ monthYear: b.monthYear, data: b,clientUpdatedAt: b.updatedAt, }),
           });
           if (res.ok) {
             set({ syncStatus: 'synced' });

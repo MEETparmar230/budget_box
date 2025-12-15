@@ -15,7 +15,6 @@ export default function CategoryPie() {
   const budget = useBudgetStore(s => s.budget)
   if (!budget) return null
 
-  console.log(budget)
 
   const data = {
   labels: ['Bills', 'Food', 'Transport', 'Subscriptions', 'Miscellaneous'],

@@ -4,14 +4,14 @@ import { useBudgetStore } from "../../stores/useBudgetStore";
 import { Input } from "./ui/input";
 
 type Budget = {
-  income: number;
-  bills: number;
-  food: number;
-  transport: number;
-  subscriptions: number;
-  miscellaneous: number;
-  updatedAt: string;
-  monthYear: string;
+    income: number;
+    bills: number;
+    food: number;
+    transport: number;
+    subscriptions: number;
+    miscellaneous: number;
+    updatedAt: string;
+    monthYear: string;
 };
 
 export default function BudgetForm() {
@@ -23,6 +23,33 @@ export default function BudgetForm() {
         const num = Number(value || 0);
         setBudget({ [field]: num } as Partial<Budget>);
     }
+
+    const onLatest = async () => {
+        try {
+            const res = await fetch("/api/budget/latest", {
+                cache: "no-store",
+                credentials: "include",
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error while fetching latest, status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (data?.budget) {
+                useBudgetStore.getState().replaceBudget({
+                    ...data.budget,
+                    updatedAt: data.updatedAt,
+                    monthYear: data.monthYear,
+                });
+
+            }
+        } catch (err) {
+            console.error("Fetch latest failed", err);
+        }
+    };
+
 
 
     return (
@@ -48,7 +75,8 @@ export default function BudgetForm() {
                     <Input className="w-full p-2 rounded mt-1" type="number" value={budget?.miscellaneous ?? ''} onChange={(e) => onChange('miscellaneous', e.target.value)} />
                 </label>
             </div>
-            <p className="text-sm text-muted-foreground mt-3">Auto-saved locally.</p>
+
+            <span className="text-sm text-muted-foreground mt-3">Auto-saved locally.</span><span><button className="text-foreground text-sm mx-2 px-2 rounded-sm cursor-pointer border border-border mt-3" onClick={onLatest}>fetch Latest</button></span>
         </div>
     )
 }
